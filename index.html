@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>TP NodeJS - ChatRoom</title>
+</head>
+
+<body>
+
+<div class="page">
+	<div class="user">
+		<input type="text" id="usernameInput" placeholder="Username">
+		<input type="submit" id="usernameButton" value="Changer">
+	</div>
+	<div id="chatDiv"></div>
+	<div class="talk">
+		<input type="text" id="messageInput" placeholder="Message">
+		<input type="submit" id="messageButton" value="Envoyer">
+	</div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var socket = io()
+	var usernameInput = document.getElementById('usernameInput')
+	var usernameButton = document.getElementById('usernameButton')
+	var chatDiv = document.getElementById('chatDiv')
+	var messageInput = document.getElementById('messageInput')
+	var messageButton = document.getElementById('messageButton')
+
+	usernameButton.addEventListener('click', () => {
+		socket.emit('usernameSet', usernameInput.value)
+	})
+
+	socket.on('usernameChanged', (data) => {
+		console.log('username changed : ', data)
+		chatDiv.innerHTML += '<p>Username changed by ' + data.username + '.</p>'
+	})
+
+	messageButton.addEventListener('click', () => {
+		chatDiv.innerHTML += '<p>Moi : ' + messageInput.value + '.</p>'
+		socket.emit('messageSent', {message :messageInput.value, user: usernameInput.value})
+	})
+
+	socket.on('messageReceived', (data) => {
+		console.log('message received : ', data)
+		chatDiv.innerHTML += '<p>' + data.username + ' : ' + data.message + '.</p>'
+	})
+</script>
+
+</body>
